@@ -1,0 +1,67 @@
+@model Upi.web.Controllers.UsUpi
+
+@{
+    ViewData["Title"] = "GetUpi";
+}
+
+<h2>GetUpi</h2>
+
+<form asp-action="GetUpi">
+    <div class="form-horizontal">
+        <h4>UsUpi</h4>
+        <hr />
+        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+        <div class="form-group">
+            <label asp-for="Country" class="col-md-2 control-label"></label>
+            <div class="col-md-10">
+                <input asp-for="Country" class="form-control" />
+                <span asp-validation-for="Country" class="text-danger"></span>
+            </div>
+        </div>
+        <div class="form-group">
+            <label asp-for="FIPSCounty" class="col-md-2 control-label"></label>
+            <div class="col-md-10">
+                <input asp-for="FIPSCounty" class="form-control" />
+                <span asp-validation-for="FIPSCounty" class="text-danger"></span>
+            </div>
+        </div>
+        <div class="form-group">
+            <label asp-for="FIPSSubCounty" class="col-md-2 control-label"></label>
+            <div class="col-md-10">
+                <input asp-for="FIPSSubCounty" class="form-control" />
+                <span asp-validation-for="FIPSSubCounty" class="text-danger"></span>
+            </div>
+        </div>
+        <div class="form-group">
+            <label asp-for="PropertyType" class="col-md-2 control-label"></label>
+            <div class="col-md-10">
+                <input asp-for="PropertyType" class="form-control" />
+                <span asp-validation-for="PropertyType" class="text-danger"></span>
+            </div>
+        </div>
+        <div class="form-group">
+            <label asp-for="ParcelNumber" class="col-md-2 control-label"></label>
+            <div class="col-md-10">
+                <input asp-for="ParcelNumber" class="form-control" />
+                <span asp-validation-for="ParcelNumber" class="text-danger"></span>
+            </div>
+        </div>
+        <div class="form-group">
+            <label asp-for="SubPropertyId" class="col-md-2 control-label"></label>
+            <div class="col-md-10">
+                <input asp-for="SubPropertyId" class="form-control" />
+                <span asp-validation-for="SubPropertyId" class="text-danger"></span>
+            </div>
+        </div>
+        <div class="form-group">
+            <div class="col-md-offset-2 col-md-10">
+                <input type="submit" value="Save" class="btn btn-default" />
+            </div>
+        </div>
+    </div>
+</form>
+
+<div>
+    <a asp-action="Index">Back to List</a>
+</div>
+

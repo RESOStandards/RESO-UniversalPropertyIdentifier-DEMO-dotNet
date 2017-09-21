@@ -1,0 +1,150 @@
+﻿@*
+
+
+*@
+
+@{}
+
+<script src="http://code.angularjs.org/1.0.5/angular.js"></script>
+
+<script>
+    var app = angular.module('upiApp', []);
+
+    app.controller('ptController', function ($scope, $http) {
+        $scope.propTypes = [
+            { text: "Real Property",                code: "R" },
+            { text: "Stock Coop, Apartment, ...",   code: "S" },
+            { text: "Temp Designation",             code: "T" }
+        ];
+
+        $scope.allStates = null;
+
+        //Declaring the function to load data from database
+        $scope.fillStateList = function () {
+            $http({
+                method: 'GET',
+                url: '/api/fips',
+                data: {}
+            }).success(function (result) {
+                $scope.allStates = result;
+            });
+        };
+
+        $scope.fillCountyList = function (state) {
+            $http({
+                method: 'GET',
+                url: '/api/fips/' + state,
+                data: {}
+            }).success(function (result) {
+                $scope.countiesList = result;
+                });
+            
+        };
+
+        $scope.fillSubCountyList = function (state, county) {
+            $http({
+                method: 'GET',
+                url: '/api/fips/'+ state + '/' + county,
+                data: {}
+            }).success(function (result) {
+                $scope.subCountiesList = result;
+            });
+        };
+
+        //Calling the function to load the data on pageload
+        $scope.fillStateList();
+
+        $scope.SubProperty = function (propType, subPropId) {
+
+            if (propType == 'R') return '';
+            if (!subPropId) return '';
+            return '-' + subPropId;
+        };
+
+        $scope.$watch("propType", function (newValue, oldValue) {
+            if ($scope.propType.code == 'R')
+            {
+                $scope.propId = "" ;
+            }
+        });
+
+    });
+
+    app.controller('stateController', function ($scope, $http) {
+    });
+        
+</script>
+
+<h2>Universal Property Identifier</h2>
+
+<div ng-app="upiApp" ng-controller="ptController" >
+    <div class="form-horizontal">
+        <h4>Builder</h4>
+
+        <div class="form-group">
+            <label class="col-md-2 control-label">Country:</label>
+            <div class="col-md-10">
+                <select ng-model="selectedCountry" class="form-control ">
+                    <option value="US" selected>US</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label class="col-md-2 control-label">State (FIPS):</label>
+            <div class="col-md-10">
+                <select ng-model="selectedState"
+                        ng-change="fillCountyList(selectedState.code)"
+                        ng-options="x.name for x in allStates"
+                        class="form-control"></select>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label class="col-md-2 control-label">County (FIPS):</label>
+            <div class="col-md-10">
+                <select ng-model="selectedCounty"
+                        ng-change="fillSubCountyList(selectedState.code, selectedCounty.code)"
+                        ng-options="x.name for x in countiesList"
+                        class="form-control"></select>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label class="col-md-2 control-label">Subcounty (FIPS):</label>
+            <div class="col-md-10">
+                <select ng-model="selectedSubCounty"
+                        ng-options="x.name for x in subCountiesList"
+                        class="form-control"></select>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label class="col-md-2 control-label">Property Type:</label>
+            <div class="col-md-10">
+                <select ng-model="propertyType" 
+                        ng-change="if(propertyType=='R') $scope.propId='')"
+                        ng-options="t.text for t in propTypes" 
+                        class="form-control ">
+                </select>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label class="col-md-2 control-label">Parcel Number:</label>
+            <div class="col-md-10">
+                <input type=text ng-model="apn" class="form-control">
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label class="col-md-2 control-label">Sub Property:</label>
+            <div class="col-md-10">
+                <input type=text ng-model="propId" class="form-control" ng-disabled="propertyType.code=='R'" >
+            </div>
+        </div>
+        
+        <H3>UPI: {{selectedCountry}}{{country}}-{{selectedState.code}}{{selectedCounty.code}}-{{selectedSubCounty.code}}-{{propertyType.code}}-{{apn}}{{SubProperty( propertyType.code, propId)}}</H3>
+
+    </div>
+</div>

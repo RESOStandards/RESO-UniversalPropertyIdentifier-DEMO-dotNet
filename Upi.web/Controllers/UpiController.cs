@@ -21,16 +21,21 @@ namespace Upi.web.Controllers
         }
     }
 
-    public class UpiCheckController : Controller
+    public class UpiController : Controller
     {
         public IActionResult Index()
         {
             return View();
         }
 
-        public IActionResult GetUpi (UsUpi upi)
+        public IActionResult GetUpi(UsUpi upi)
         {
             return View(upi);
         }
+        public IActionResult Builder()
+        {
+            return View();
+        }
+
     }
 }
