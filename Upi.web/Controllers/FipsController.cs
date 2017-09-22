@@ -60,7 +60,7 @@ namespace Upi.web.Controllers
                     var naOption = new FipsSubCounty() { Code = "N", Name = "N/A", FunctionalStatus = "" };
 
                     subcounties.Add(naOption);
-                    var invalidFunctionalStatuses = "FN";
+                    var invalidFunctionalStatuses = "FNS";
 
                     var definedSubcounties = fipsCounty
                                         .SubCounties.Where(s => !invalidFunctionalStatuses.Contains(s.FunctionalStatus))

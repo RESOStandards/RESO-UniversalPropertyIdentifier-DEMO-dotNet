@@ -41,17 +41,20 @@
 
             if ($scope.propertyType) {
                 $scope.Upi += '-' + $scope.propertyType.code;
+                if ($scope.propertyType.code == 'R') {
+                    $scope.propId = '';
+                }
             }
             else return;
 
             if ($scope.apn) {
-                $scope.Upi += '-' + $scope.apn.replace(/[^0-9a-z]/gi, '');
+                $scope.Upi += '-' + $scope.apn.replace(/[^0-9a-z]/gi, '').toUpperCase();
             }
             else return;
 
             if ($scope.propertyType.code != 'R') {
                 if ($scope.propId)
-                    $scope.Upi += '-' + $scope.propId;
+                    $scope.Upi += '-' + $scope.propId.replace(/[^0-9a-z]/gi, '').toUpperCase();
             }
         }
 
@@ -185,7 +188,11 @@
         <div class="form-group">
             <label class="col-md-2 control-label">Sub Property:</label>
             <div class="col-md-10">
-                <input type=text ng-model="propId" class="form-control" ng-disabled="propertyType.code=='R'" >
+                <input type=text 
+                       ng-model="propId" 
+                       ng-change="buildUpi()"
+                       class="form-control" 
+                       ng-disabled="propertyType.code=='R'" >
             </div>
         </div>
         
