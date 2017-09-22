@@ -12,10 +12,48 @@
 
     app.controller('ptController', function ($scope, $http) {
         $scope.propTypes = [
-            { text: "Real Property",                code: "R" },
-            { text: "Stock Coop, Apartment, ...",   code: "S" },
-            { text: "Temp Designation",             code: "T" }
+            { text: "Real Property", code: "R" },
+            { text: "Stock Coop, Apartment, ...", code: "S" },
+            { text: "Temp Designation", code: "T" }
         ];
+
+        $scope.buildUpi = function () {
+            $scope.Upi = 'UPI: ';
+            if ($scope.selectedCountry) {
+                $scope.Upi += $scope.selectedCountry;
+            }
+            else return;
+
+            if ($scope.selectedState) {
+                $scope.Upi += '-' + $scope.selectedState.code;
+            }
+            else return;
+
+            if ($scope.selectedCounty) {
+                $scope.Upi += $scope.selectedCounty.code;
+            }
+            else return;
+
+            if ($scope.selectedSubCounty) {
+                $scope.Upi += '-' + $scope.selectedSubCounty.code;
+            }
+            else return;
+
+            if ($scope.propertyType) {
+                $scope.Upi += '-' + $scope.propertyType.code;
+            }
+            else return;
+
+            if ($scope.apn) {
+                $scope.Upi += '-' + $scope.apn.replace(/[^0-9a-z]/gi, '');
+            }
+            else return;
+
+            if ($scope.propertyType.code != 'R') {
+                if ($scope.propId)
+                    $scope.Upi += '-' + $scope.propId;
+            }
+        }
 
         $scope.allStates = null;
 
@@ -27,52 +65,51 @@
                 data: {}
             }).success(function (result) {
                 $scope.allStates = result;
+                $scope.selectedState = null;
+                $scope.selectedCounty = null;
+                $scope.buildUpi();
             });
         };
 
         $scope.fillCountyList = function (state) {
+
+            $scope.selectedCounty = null;
+
             $http({
                 method: 'GET',
                 url: '/api/fips/' + state,
                 data: {}
             }).success(function (result) {
                 $scope.countiesList = result;
-                });
-            
+
+                if ($scope.countiesList.length == 1) {
+                    // help the user if there is only one selection
+                    $scope.selectedCounty = $scope.countiesList[0];
+                    $scope.fillSubCountyList($scope.selectedState.code, $scope.selectedCounty.code)
+                }
+                else {
+                    $scope.subCountiesList = null;
+                }
+
+                $scope.buildUpi();
+            });
         };
 
         $scope.fillSubCountyList = function (state, county) {
             $http({
                 method: 'GET',
-                url: '/api/fips/'+ state + '/' + county,
+                url: '/api/fips/' + state + '/' + county,
                 data: {}
             }).success(function (result) {
                 $scope.subCountiesList = result;
+                $scope.selectedSubCounty = $scope.subCountiesList[0];
+                $scope.buildUpi();
             });
         };
 
-        //Calling the function to load the data on pageload
         $scope.fillStateList();
 
-        $scope.SubProperty = function (propType, subPropId) {
-
-            if (propType == 'R') return '';
-            if (!subPropId) return '';
-            return '-' + subPropId;
-        };
-
-        $scope.$watch("propType", function (newValue, oldValue) {
-            if ($scope.propType.code == 'R')
-            {
-                $scope.propId = "" ;
-            }
-        });
-
     });
-
-    app.controller('stateController', function ($scope, $http) {
-    });
-        
 </script>
 
 <h2>Universal Property Identifier</h2>
@@ -84,7 +121,10 @@
         <div class="form-group">
             <label class="col-md-2 control-label">Country:</label>
             <div class="col-md-10">
-                <select ng-model="selectedCountry" class="form-control ">
+                <select ng-model="selectedCountry" 
+                        ng-init="selectedCountry = 'US'"
+                        ng-change="buildUpi()" 
+                        class="form-control">
                     <option value="US" selected>US</option>
                 </select>
             </div>
@@ -114,6 +154,7 @@
             <label class="col-md-2 control-label">Subcounty (FIPS):</label>
             <div class="col-md-10">
                 <select ng-model="selectedSubCounty"
+                        ng-change="buildUpi()" 
                         ng-options="x.name for x in subCountiesList"
                         class="form-control"></select>
             </div>
@@ -122,8 +163,9 @@
         <div class="form-group">
             <label class="col-md-2 control-label">Property Type:</label>
             <div class="col-md-10">
-                <select ng-model="propertyType" 
-                        ng-change="if(propertyType=='R') $scope.propId='')"
+                <select ng-model="propertyType"
+                        ng-init="propertyType = propTypes[0]"
+                        ng-change="buildUpi()" 
                         ng-options="t.text for t in propTypes" 
                         class="form-control ">
                 </select>
@@ -133,7 +175,10 @@
         <div class="form-group">
             <label class="col-md-2 control-label">Parcel Number:</label>
             <div class="col-md-10">
-                <input type=text ng-model="apn" class="form-control">
+                <input type=text 
+                       ng-model="apn" 
+                       ng-change="buildUpi()" 
+                       class="form-control">
             </div>
         </div>
 
@@ -144,7 +189,7 @@
             </div>
         </div>
         
-        <H3>UPI: {{selectedCountry}}{{country}}-{{selectedState.code}}{{selectedCounty.code}}-{{selectedSubCounty.code}}-{{propertyType.code}}-{{apn}}{{SubProperty( propertyType.code, propId)}}</H3>
+        <H3>{{Upi}}</H3>
 
     </div>
 </div>
