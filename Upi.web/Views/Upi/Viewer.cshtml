@@ -1,0 +1,82 @@
+@{
+    ViewData["Title"] = "Viewer";
+}
+<script src="http://code.angularjs.org/1.0.5/angular.js"></script>
+
+<h2>Universal Property Identifier</h2>
+
+<script>
+    var app = angular.module('upiApp', []);
+
+    app.controller('ptController', function ($scope, $http) {
+
+        $scope.breakdownUPI = function () {
+            $http({
+                method: 'GET',
+                url: '/upi/ViewUpi?upi=' + $scope.upi,
+                data: {}
+            }).success(function (result) {
+                $scope.country = result.country;
+                $scope.State = result.fipsState;
+                $scope.County = result.fipsCounty;
+                $scope.SubCounty = result.fipsSubCounty;
+                $scope.Type = result.propertyType;
+                $scope.ParcelNumber = result.parcelNumber;
+                $scope.SubProperty = result.subPropertyId;
+                $scope.ErrorText = result.errorText;
+            });
+        };
+
+    });
+</script>
+
+
+<div ng-app="upiApp" ng-controller="ptController">
+
+    <div class="form-horizontal">
+        <h4>Viewer</h4>
+
+        <div class="form-group">
+            <label class="col-md-2 control-label">UPI:</label>
+            <div class="col-md-10">
+                <input type=text
+                       ng-model="upi"
+                       ng-change="breakdownUPI()"
+                       class="form-control"
+                       >
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label class="col-md-2 control-label">Country:</label>
+            <label class="col-md-pull-5 control-label">{{country}}</label>
+        </div>
+        <div class="form-group">
+            <label class="col-md-2 control-label">State:</label>
+            <label class="col-md-pull-5 control-label">{{State}}</label>
+        </div>
+        <div class="form-group">
+            <label class="col-md-2 control-label">County:</label>
+            <label class="col-md-pull-5 control-label">{{County}}</label>
+        </div>
+        <div class="form-group">
+            <label class="col-md-2 control-label">Sub-county:</label>
+            <label class="col-md-pull-5 control-label">{{SubCounty}}</label>
+        </div>
+        <div class="form-group">
+            <label class="col-md-2 control-label">Property Type:</label>
+            <label class="col-md-pull-5 control-label">{{Type}}</label>
+        </div>
+        <div class="form-group">
+            <label class="col-md-2 control-label">Parcel:</label>
+            <label class="col-md-pull-5 control-label">{{ParcelNumber}}</label>
+        </div>
+        <div class="form-group">
+            <label class="col-md-2 control-label">Sub-property:</label>
+            <label class="col-md-pull-5 control-label">{{SubProperty}}</label>
+        </div>
+        <div class="form-group">
+            <label class="col-md-pull-5 control-label">{{ErrorText}}</label>
+        </div>
+    </div>
+</div>

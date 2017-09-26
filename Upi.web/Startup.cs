@@ -57,12 +57,18 @@ namespace Upi.web
             app.UseStaticFiles();
 
             // Enable middleware to serve generated Swagger as a JSON endpoint.
-            app.UseSwagger();
+            app.UseSwagger(o=>
+            {
+                o.RouteTemplate = "docs/{documentName}/docs.json";
+            });
 
             // Enable middleware to serve swagger-ui (HTML, JS, CSS, etc.), specifying the Swagger JSON endpoint.
             app.UseSwaggerUI(c =>
             {
-                c.SwaggerEndpoint("/swagger/v1/swagger.json", "FIPS demo API V1");
+                c.InjectOnCompleteJavaScript("/swagger-ui/custom.js");
+                c.SwaggerEndpoint("/docs/v1/docs.json", "FIPS demo API V1");
+                c.RoutePrefix = "docs";
+                c.InjectStylesheet("/swagger-ui/custom.css");
             });
 
 
