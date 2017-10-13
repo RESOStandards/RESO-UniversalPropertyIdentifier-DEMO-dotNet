@@ -13,13 +13,29 @@ namespace Upi.web.Controllers
 
         public UsUpi(string upi)
         {
+            upi = upi.ToUpper();
+
             var segments = upi.Split('-');
             FipsState state = null;
             FipsCounty county = null;
             FipsSubCounty subCounty = null;
 
-            if (segments.Length == 5 || segments.Length == 6) {
+            Country = UNKNOWN;
+            FIPSState = UNKNOWN;
+            FIPSCounty = UNKNOWN;
+            FIPSSubCounty = UNKNOWN;
+            PropertyType = UNKNOWN;
+            ParcelNumber = UNKNOWN;
+            SubPropertyId = UNKNOWN;
 
+
+            ErrorText = "";
+
+            var subPropertyError = "";
+            var segmentCount = segments.Count(s => s.Length > 0);
+
+            if ((segmentCount == 5 || segmentCount == 6) && (segments.Count(s=> s.Length==0)==0))
+            {
                 Country = (segments[0].ToUpper() == "US") ? "US" : UNKNOWN;
 
                 if (Country != UNKNOWN )
@@ -35,18 +51,30 @@ namespace Upi.web.Controllers
                 }
                 else
                 {
+                    FIPSState = UNKNOWN;
                     FIPSCounty = UNKNOWN;
                 }
 
                 if (FIPSCounty != UNKNOWN)
                 {
-                    subCounty = county != null ? county.SubCounties.FirstOrDefault(f => f.Code == segments[2]) : null;
-                    FIPSSubCounty = subCounty != null ? subCounty.Name : "N/A";
+                    if (segments[2] == "N")
+                    {
+                        FIPSSubCounty = "N/A";
+                    }
+                    else
+                    {
+                        subCounty = county.SubCounties.FirstOrDefault(f => f.Code == segments[2]);
+                        FIPSSubCounty = subCounty != null ? subCounty.Name : UNKNOWN;
+                    }
+                }
+                else
+                {
+                    FIPSSubCounty = UNKNOWN;
                 }
 
-                if (segments[3].Trim().Length == 1)
+                if (segments[3].Length == 1)
                 {
-                    switch (segments[3].Trim())
+                    switch (segments[3])
                     {
                         case "R":
                             PropertyType = "Real Property";
@@ -71,7 +99,7 @@ namespace Upi.web.Controllers
                 {
                     ParcelNumber = segments[4];
 
-                    if (PropertyType != "R")
+                    if (segments[3] != "R")
                     {
                         if (segments.Length == 6)
                         {
@@ -79,29 +107,32 @@ namespace Upi.web.Controllers
                         }
                         else
                         {
-                            ErrorText += "Invalid Missing sup-property Id";
+                            subPropertyError = "Invalid Missing sup-property Id";
                         }
 
                     }
                     else if (segments.Length == 6)
                     {
-                        ErrorText += "Invalid Unexpected sub-property Id";
+                        subPropertyError = "Invalid Unexpected sub-property Id";
                     }
-
+                    else
+                    {
+                        SubPropertyId = "";
+                    }
                 }
                 else
                 {
                     ParcelNumber = UNKNOWN;
                 }
 
-                ErrorText = Country.Contains(UNKNOWN) ? "Invald Country code; " : "";
-                ErrorText = FIPSState.Contains(UNKNOWN) ? "Invald State code; " : "";
-                ErrorText = FIPSCounty.Contains(UNKNOWN) ? "Invald FIPS County code; " : "";
-                ErrorText = FIPSSubCounty.Contains(UNKNOWN) ? "Invald FIPS Sub-county code; " : "";
-                ErrorText = PropertyType.Contains(UNKNOWN) ? "Invald Property Type; " : "";
-                ErrorText = ParcelNumber.Contains(UNKNOWN) ? "Invald Country; " : "";
-                ErrorText = (segments.Length >= 5) && (ParcelNumber.Length == 0) ? "Missing parcel number; " : "";
-                ErrorText = (segments.Length == 6) && (SubPropertyId.Length == 0) ? "Missing Sub-property Identifier; " : "";
+                ErrorText += Country.Contains(UNKNOWN) ? "Invald Country code; " : "";
+                ErrorText += FIPSState.Contains(UNKNOWN) ? "Invald State code; " : "";
+                ErrorText += FIPSCounty.Contains(UNKNOWN) ? "Invald FIPS County code; " : "";
+                ErrorText += FIPSSubCounty.Contains(UNKNOWN) ? "Invald FIPS Sub-county code; " : "";
+                ErrorText += PropertyType.Contains(UNKNOWN) ? "Invald Property Type; " : "";
+                ErrorText += ParcelNumber.Contains(UNKNOWN) ? "Invald Country; " : "";
+                ErrorText += (segments.Length >= 5) && (ParcelNumber.Length == 0) ? "Missing parcel number; " : "";
+                ErrorText += (!string.IsNullOrEmpty(subPropertyError)) ? subPropertyError : "";
 
             }
             else
@@ -119,6 +150,7 @@ namespace Upi.web.Controllers
         public string PropertyType { get; set; }
         public string ParcelNumber { get; set; }
         public string SubPropertyId { get; set; }
+        public string UpiScore { get; set; }
         public string ErrorText { get; set; }
 
         public override string ToString()
@@ -127,6 +159,8 @@ namespace Upi.web.Controllers
         }
 
     }
+
+
 
     public class UpiController : Controller
     {
@@ -148,12 +182,12 @@ namespace Upi.web.Controllers
         {
             return View();
         }
-        [HttpGet("{upi}", Name = "Viewer")]
         public IActionResult Viewer(string upi)
         {
             return View();
         }
 
+        [HttpGet("{upi}", Name = "Validate")]
         public UsUpi ViewUpi(string upi)
         {
             if(upi== null)
@@ -163,7 +197,27 @@ namespace Upi.web.Controllers
             // return a view of the UPI
             try
             {
+                Random r = new Random();
+
                 var upiBreakdown = new UsUpi(upi);
+                if (upiBreakdown.ErrorText.Any())
+                {
+                    upiBreakdown.UpiScore = 0.ToString();
+                }
+                else
+                {
+                    var t = upiBreakdown.ParcelNumber.Substring(0, 2);
+                    double result;
+                    if ( double.TryParse(t, out result))
+                    {
+                        upiBreakdown.UpiScore = ((result / 100 * 20) + 80).ToString("F2");
+                    }
+                    else
+                    {
+                        upiBreakdown.UpiScore = "77.98";
+                    }
+                }
+
                 return upiBreakdown;
             }
             catch (Exception ex)

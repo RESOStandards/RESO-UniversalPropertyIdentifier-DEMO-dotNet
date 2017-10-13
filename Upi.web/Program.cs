@@ -17,6 +17,7 @@ namespace Upi.web
                 .UseIISIntegration()
                 .UseStartup<Startup>()
                 .UseApplicationInsights()
+                //.UseUrls("http://resoupi.azurewebsites.net/","http://upi.reso.org/")
                 .Build();
 
             host.Run();

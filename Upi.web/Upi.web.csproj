@@ -8,6 +8,10 @@
     <PackageTargetFallback>$(PackageTargetFallback);portable-net45+win8+wp8+wpa81;</PackageTargetFallback>
   </PropertyGroup>
 
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <LangVersion>7</LangVersion>
+  </PropertyGroup>
+
   <ItemGroup>
     <Content Include="wwwroot\docs\images\favicon.ico">
       <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
