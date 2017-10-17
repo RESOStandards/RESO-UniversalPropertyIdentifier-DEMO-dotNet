@@ -11,9 +11,12 @@
     app.controller('ptController', function ($scope, $http) {
 
         $scope.breakdownUPI = function () {
+
+            $scope.errorText = "...";
+
             $http({
                 method: 'GET',
-                url: '/upi/ViewUpi?upi=' + $scope.upi,
+                url: '/api/upiCheck/' + $scope.upi,
                 data: {}
             }).success(function (result) {
                 $scope.country = result.country;

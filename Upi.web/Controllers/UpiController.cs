@@ -160,37 +160,14 @@ namespace Upi.web.Controllers
 
     }
 
-
-
-    public class UpiController : Controller
+    [Produces("application/json")]
+    [Route("api/upiCheck")]
+    public class UpiCheck : Controller
     {
-        public IActionResult Index()
-        {
-            return View();
-        }
-
-        public IActionResult GetUpi(UsUpi upi)
-        {
-            return View(upi);
-        }
-        public IActionResult Builder()
-        {
-            return View();
-        }
-
-        public IActionResult Viewer()
-        {
-            return View();
-        }
-        public IActionResult Viewer(string upi)
-        {
-            return View();
-        }
-
         [HttpGet("{upi}", Name = "Validate")]
-        public UsUpi ViewUpi(string upi)
+        public UsUpi Get(string upi)
         {
-            if(upi== null)
+            if (upi == null)
             {
                 return new UsUpi();
             }
@@ -208,7 +185,7 @@ namespace Upi.web.Controllers
                 {
                     var t = upiBreakdown.ParcelNumber.Substring(0, 2);
                     double result;
-                    if ( double.TryParse(t, out result))
+                    if (double.TryParse(t, out result))
                     {
                         upiBreakdown.UpiScore = ((result / 100 * 20) + 80).ToString("F2");
                     }
@@ -227,5 +204,29 @@ namespace Upi.web.Controllers
                 return result;
             }
         }
+
+    }
+
+    public class UpiController : Controller
+    {
+        public IActionResult Index()
+        {
+            return View();
+        }
+
+        public IActionResult GetUpi(UsUpi upi)
+        {
+            return View(upi);
+        }
+        public IActionResult Builder()
+        {
+            return View();
+        }
+
+        public IActionResult Viewer(string upi)
+        {
+            return View();
+        }
+
     }
 }
