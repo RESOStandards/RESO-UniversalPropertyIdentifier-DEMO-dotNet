@@ -113,11 +113,14 @@ namespace Upi.web.Controllers
                     }
                     else if (segments.Length == 6)
                     {
-                        subPropertyError = "Invalid Unexpected sub-property Id";
+                        if (segments[5].ToUpper() != "N")
+                            subPropertyError = "Invalid sub-property Id";
+                        else
+                            SubPropertyId = $"{segments[5].ToUpper()}";
                     }
                     else
                     {
-                        SubPropertyId = "";
+                        subPropertyError = "Invalid sub-property Id";
                     }
                 }
                 else

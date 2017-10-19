@@ -41,7 +41,7 @@
             if ($scope.propertyType) {
                 $scope.Upi += '-' + $scope.propertyType.code;
                 if ($scope.propertyType.code == 'R') {
-                    $scope.propId = '';
+                    $scope.propId = 'N';
                 }
             }
             else return;
@@ -51,10 +51,10 @@
             }
             else return;
 
-            if ($scope.propertyType.code != 'R') {
+            //if ($scope.propertyType.code != 'R') {
                 if ($scope.propId)
                     $scope.Upi += '-' + $scope.propId.replace(/[^0-9a-z]/gi, '').toUpperCase();
-            }
+            //}
         }
 
         $scope.allStates = null;

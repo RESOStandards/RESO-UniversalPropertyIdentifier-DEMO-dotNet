@@ -87,7 +87,10 @@ namespace Upi.web
                 
             });
 
-            app.UseCors(c => c.AllowAnyOrigin());
+            app.UseCors(c => c
+                .AllowAnyOrigin()
+                .AllowAnyHeader()
+                .AllowAnyMethod());
 
         }
     }
